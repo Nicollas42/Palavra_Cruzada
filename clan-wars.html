@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clan Wars: The Green Goblin Forest</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0d1a0d;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            color: #e0e0e0;
+        }
+        
+        #game-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        #game-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #1a2a1a;
+            border-radius: 10px;
+            border: 2px solid #5a3d2b;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background-image: linear-gradient(to bottom, #1a3a1a, #0d1a0d);
+            border: 4px solid #5a3d2b;
+            box-shadow: 0 0 30px #000;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        
+        #battlefield {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://i.imgur.com/6Q6Q6Q6.jpg');
+            background-size: cover;
+        }
+        
+        #player-base, #enemy-base {
+            position: absolute;
+            width: 180px;
+            height: 150px;
+            bottom: 80px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 10;
+        }
+        
+        #player-base {
+            left: 50px;
+            background-image: url('https://i.imgur.com/goblin-camp.png');
+        }
+        
+        #enemy-base {
+            right: 50px;
+            background-image: url('https://i.imgur.com/enemy-fort.png');
+            transform: scaleX(-1);
+        }
+        
+        .health-bar {
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            top: -15px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            background-color: #e74c3c;
+            width: 100%;
+        }
+        
+        #player-health .health-fill {
+            background-color: #2ecc71;
+        }
+        
+        .unit {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            bottom: 80px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            transition: left 0.3s linear;
+            z-index: 5;
+        }
+        
+        .goblin {
+            background-image: url('https://i.imgur.com/goblin-warrior.png');
+        }
+        
+        .archer {
+            background-image: url('https://i.imgur.com/goblin-archer.png');
+        }
+        
+        .dragon {
+            background-image: url('https://i.imgur.com/goblin-dragon.png');
+            width: 90px;
+            height: 90px;
+        }
+        
+        .hero {
+            background-image: url('https://i.imgur.com/goblin-hero.png');
+            width: 70px;
+            height: 70px;
+        }
+        
+        .enemy {
+            transform: scaleX(-1);
+        }
+        
+        #ui {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background-color: rgba(30, 40, 30, 0.9);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 3px solid #5a3d2b;
+            z-index: 20;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            background-color: #5a3d2b;
+            color: #fff;
+            border: 2px solid #8b5a2b;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            min-width: 120px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover:not(:disabled) {
+            background-color: #8b5a2b;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-special {
+            background-color: #3d2b5a;
+            border-color: #5a2b8b;
+        }
+        
+        .btn-special:hover:not(:disabled) {
+            background-color: #5a2b8b;
+        }
+        
+        #resources {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            color: #fff;
+            font-size: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: flex;
+            gap: 20px;
+            z-index: 15;
+        }
+        
+        .resource {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .resource-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 48px;
+            z-index: 100;
+            text-align: center;
+        }
+        
+        #restart-btn {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #5a3d2b;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        #restart-btn:hover {
+            background-color: #8b5a2b;
+        }
+        
+        #xp-bar-container {
+            width: 200px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        #xp-bar {
+            height: 100%;
+            background-color: #f39c12;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        #hero-timer {
+            position: absolute;
+            top: -25px;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            color: #f1c40f;
+        }
+        
+        #instructions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 250px;
+            font-size: 14px;
+            z-index: 15;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-wrapper">
+        <div id="game-header">
+            <h1>Clan Wars: The Green Goblin Forest</h1>
+        </div>
+        
+        <div id="game-container">
+            <div id="battlefield">
+                <div id="player-base">
+                    <div id="player-health" class="health-bar">
+                        <div class="health-fill"></div>
+                    </div>
+                </div>
+                
+                <div id="enemy-base">
+                    <div class="health-bar">
+                        <div class="health-fill"></div>
+                    </div>
+                </div>
+                
+                <div id="resources">
+                    <div class="resource">
+                        <img src="https://i.imgur.com/gold-icon.png" class="resource-icon" alt="Ouro">
+                        <span id="gold">100</span>
+                    </div>
+                    <div class="resource">
+                        <img src="https://i.imgur.com/xp-icon.png" class="resource-icon" alt="XP">
+                        <div>
+                            <div>Experiência</div>
+                            <div id="xp-bar-container">
+                                <div id="xp-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="resource">
+                        <img src="https://i.imgur.com/hero-icon.png" class="resource-icon" alt="Herói">
+                        <div>
+                            <div id="hero-status">Herói: Bloqueado</div>
+                            <div id="hero-timer"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="instructions">
+                    <h3>Como Jogar:</h3>
+                    <p>• Treine unidades para atacar o inimigo</p>
+                    <p>• Ganhe XP para desbloquear o Herói</p>
+                    <p>• Destrua a base inimiga primeiro!</p>
+                </div>
+                
+                <div id="ui">
+                    <button id="train-goblin" class="btn">
+                        <img src="https://i.imgur.com/goblin-icon.png" width="20" height="20">
+                        Goblin (20)
+                    </button>
+                    <button id="train-archer" class="btn">
+                        <img src="https://i.imgur.com/archer-icon.png" width="20" height="20">
+                        Arqueiro (40)
+                    </button>
+                    <button id="train-dragon" class="btn">
+                        <img src="https://i.imgur.com/dragon-icon.png" width="20" height="20">
+                        Dragão (100)
+                    </button>
+                    <button id="summon-hero" class="btn btn-special" disabled>
+                        <img src="https://i.imgur.com/hero-btn-icon.png" width="20" height="20">
+                        Convocar Herói
+                    </button>
+                </div>
+                
+                <div id="game-over">
+                    <div id="game-over-text">Você Perdeu!</div>
+                    <div id="game-over-desc"></div>
+                    <button id="restart-btn" class="btn">Jogar Novamente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            gold: 100,
+            xp: 0,
+            heroAvailable: false,
+            heroActive: false,
+            heroTimeLeft: 0,
+            gameRunning: true,
+            playerHealth: 100,
+            enemyHealth: 100,
+            units: [],
+            enemies: [],
+            wave: 1,
+            kills: 0
+        };
+
+        // DOM elements
+        const goldEl = document.getElementById('gold');
+        const xpBar = document.getElementById('xp-bar');
+        const heroStatusEl = document.getElementById('hero-status');
+        const heroTimerEl = document.getElementById('hero-timer');
+        const gameContainer = document.getElementById('game-container');
+        const battlefield = document.getElementById('battlefield');
+        const gameOverScreen = document.getElementById('game-over');
+        const gameOverText = document.getElementById('game-over-text');
+        const gameOverDesc = document.getElementById('game-over-desc');
+        const restartBtn = document.getElementById('restart-btn');
+        const playerHealthBar = document.querySelector('#player-health .health-fill');
+        const enemyHealthBar = document.querySelector('#enemy-base .health-fill');
+
+        // Game configuration
+        const CONFIG = {
+            unitCosts: {
+                goblin: 20,
+                archer: 40,
+                dragon: 100
+            },
+            xpNeeded: 50,
+            xpPerKill: 5,
+            goldPerKill: {
+                goblin: 10,
+                archer: 20,
+                dragon: 50
+            },
+            heroDuration: 30000, // 30 seconds
+            passiveGold: 0.5, // Gold per 100ms
+            waveInterval: 30000, // 30 seconds
+            waveMultiplier: 1.2
+        };
+
+        // Enemy types with weights for spawn probability
+        const ENEMY_TYPES = [
+            { type: 'goblin', weight: 5, health: 30, damage: 5, speed: 2, bounty: 10 },
+            { type: 'archer', weight: 3, health: 20, damage: 10, speed: 1.5, bounty: 20 },
+            { type: 'dragon', weight: 1, health: 100, damage: 30, speed: 1, bounty: 50 }
+        ];
+
+        // Initialize game
+        function init() {
+            // Event listeners for buttons
+            document.getElementById('train-goblin').addEventListener('click', () => trainUnit('goblin'));
+            document.getElementById('train-archer').addEventListener('click', () => trainUnit('archer'));
+            document.getElementById('train-dragon').addEventListener('click', () => trainUnit('dragon'));
+            document.getElementById('summon-hero').addEventListener('click', summonHero);
+            restartBtn.addEventListener('click', restartGame);
+
+            // Game loops
+            setInterval(spawnEnemy, 2000); // Spawn enemy every 2 seconds
+            setInterval(gameLoop, 100); // Main game loop (10fps)
+            setInterval(passiveIncome, 100); // Passive gold income
+            setInterval(increaseWave, CONFIG.waveInterval); // Increase wave difficulty
+
+            // Initial UI update
+            updateResources();
+            updateHealthBars();
+        }
+
+        // Train a unit
+        function trainUnit(type) {
+            if (gameState.gold >= CONFIG.unitCosts[type]) {
+                gameState.gold -= CONFIG.unitCosts[type];
+                updateResources();
+                
+                const unit = createUnitElement(type, '200px');
+                battlefield.appendChild(unit.element);
+                
+                gameState.units.push(unit);
+                
+                // Add spawn effect
+                unit.element.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    unit.element.style.transform = 'scale(1)';
+                }, 100);
+            }
+        }
+
+        // Create a unit element
+        function createUnitElement(type, position) {
+            const element = document.createElement('div');
+            element.className = `unit ${type}`;
+            element.style.left = position;
+            
+            return {
+                element: element,
+                type: type,
+                health: type === 'goblin' ? 40 : (type === 'archer' ? 25 : 120),
+                maxHealth: type === 'goblin' ? 40 : (type === 'archer' ? 25 : 120),
+                damage: type === 'goblin' ? 8 : (type === 'archer' ? 15 : 35),
+                position: parseInt(position),
+                speed: type === 'dragon' ? 1.2 : (type === 'archer' ? 1.8 : 2.5),
+                attackCooldown: 0,
+                attackRate: type === 'archer' ? 20 : 30
+            };
+        }
+
+        // Spawn an enemy
+        function spawnEnemy() {
+            if (!gameState.gameRunning) return;
+            
+            // Weighted random enemy selection
+            const totalWeight = ENEMY_TYPES.reduce((sum, enemy) => sum + enemy.weight, 0);
+            let random = Math.random() * totalWeight;
+            let selectedEnemy;
+            
+            for (const enemy of ENEMY_TYPES) {
+                if (random < enemy.weight) {
+                    selectedEnemy = enemy;
+                    break;
+                }
+                random -= enemy.weight;
+            }
+            
+            const enemy = createUnitElement(selectedEnemy.type, '900px');
+            enemy.element.classList.add('enemy');
+            battlefield.appendChild(enemy.element);
+            
+            // Apply wave difficulty
+            enemy.health = Math.floor(selectedEnemy.health * Math.pow(CONFIG.waveMultiplier, gameState.wave - 1));
+            enemy.maxHealth = enemy.health;
+            enemy.damage = Math.floor(selectedEnemy.damage * Math.pow(CONFIG.waveMultiplier, gameState.wave - 1));
+            
+            gameState.enemies.push(enemy);
+            
+            // Add spawn effect
+            enemy.element.style.transform = 'scale(0)';
+            setTimeout(() => {
+                enemy.element.style.transform = 'scaleX(-1) scale(1)';
+            }, 100);
+        }
+
+        // Summon hero
+        function summonHero() {
+            if (gameState.heroAvailable && !gameState.heroActive) {
+                gameState.heroAvailable = false;
+                gameState.heroActive = true;
+                gameState.heroTimeLeft = CONFIG.heroDuration / 1000;
+                updateResources();
+                
+                const hero = createUnitElement('hero', '200px');
+                battlefield.appendChild(hero.element);
+                
+                gameState.units.push(hero);
+                
+                // Hero duration timer
+                const heroInterval = setInterval(() => {
+                    gameState.heroTimeLeft -= 1;
+                    heroTimerEl.textContent = `Herói: ${gameState.heroTimeLeft}s`;
+                    
+                    if (gameState.heroTimeLeft <= 0) {
+                        clearInterval(heroInterval);
+                        removeHero();
+                    }
+                }, 1000);
+                
+                // Add spawn effect
+                hero.element.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    hero.element.style.transform = 'scale(1)';
+                }, 100);
+            }
+        }
+
+        // Remove hero
+        function removeHero() {
+            gameState.heroActive = false;
+            heroTimerEl.textContent = '';
+            
+            const hero = gameState.units.find(u => u.type === 'hero');
+            if (hero) {
+                removeUnit(hero);
+            }
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (!gameState.gameRunning) return;
+            
+            // Move units
+            gameState.units.forEach(unit => {
+                unit.position += unit.speed;
+                unit.element.style.left = `${unit.position}px`;
+                
+                // Check if unit reached enemy base
+                if (unit.position >= 850) {
+                    dealDamageToEnemy(unit.damage);
+                    if (unit.type !== 'hero') {
+                        removeUnit(unit);
+                    } else {
+                        unit.position = 200;
+                        unit.element.style.left = '200px';
+                    }
+                }
+                
+                // Check for collisions with enemies
+                gameState.enemies.forEach(enemy => {
+                    if (Math.abs(unit.position - enemy.position) < 40) {
+                        if (unit.attackCooldown <= 0) {
+                            enemy.health -= unit.damage;
+                            unit.attackCooldown = unit.attackRate;
+                            
+                            // Show damage effect
+                            enemy.element.style.filter = 'brightness(1.5)';
+                            setTimeout(() => {
+                                enemy.element.style.filter = '';
+                            }, 200);
+                            
+                            if (enemy.health <= 0) {
+                                removeEnemy(enemy);
+                                gameState.gold += CONFIG.goldPerKill[enemy.type] || 10;
+                                gameState.xp += CONFIG.xpPerKill;
+                                gameState.kills++;
+                                updateResources();
+                            }
+                        }
+                    }
+                });
+                
+                if (unit.attackCooldown > 0) {
+                    unit.attackCooldown--;
+                }
+            });
+            
+            // Move enemies
+            gameState.enemies.forEach(enemy => {
+                enemy.position -= enemy.speed;
+                enemy.element.style.left = `${enemy.position}px`;
+                
+                // Check if enemy reached player base
+                if (enemy.position <= 150) {
+                    dealDamageToPlayer(enemy.damage);
+                    removeEnemy(enemy);
+                }
+                
+                // Check for collisions with units
+                gameState.units.forEach(unit => {
+                    if (Math.abs(enemy.position - unit.position) < 40) {
+                        if (enemy.attackCooldown <= 0) {
+                            unit.health -= enemy.damage;
+                            enemy.attackCooldown = enemy.attackRate;
+                            
+                            // Show damage effect
+                            unit.element.style.filter = 'brightness(1.5)';
+                            setTimeout(() => {
+                                unit.element.style.filter = '';
+                            }, 200);
+                            
+                            if (unit.health <= 0) {
+                                removeUnit(unit);
+                            }
+                        }
+                    }
+                });
+                
+                if (enemy.attackCooldown > 0) {
+                    enemy.attackCooldown--;
+                }
+            });
+            
+            // Check hero availability
+            if (gameState.xp >= CONFIG.xpNeeded && !gameState.heroAvailable && !gameState.heroActive) {
+                gameState.heroAvailable = true;
+                document.getElementById('summon-hero').disabled = false;
+                heroStatusEl.textContent = 'Herói: Pronto!';
+            }
+            
+            // Check game over conditions
+            if (gameState.playerHealth <= 0) {
+                gameOver(false);
+            } else if (gameState.enemyHealth <= 0) {
+                gameOver(true);
+            }
+        }
+
+        // Passive gold income
+        function passiveIncome() {
+            if (gameState.gameRunning) {
+                gameState.gold += CONFIG.passiveGold;
+                updateResources();
+            }
+        }
+
+        // Increase wave difficulty
+        function increaseWave() {
+            if (gameState.gameRunning) {
+                gameState.wave++;
+                // Show wave notification
+                const waveText = document.createElement('div');
+                waveText.textContent = `Onda ${gameState.wave} começou!`;
+                waveText.style.position = 'absolute';
+                waveText.style.top = '50%';
+                waveText.style.left = '50%';
+                waveText.style.transform = 'translate(-50%, -50%)';
+                waveText.style.color = '#f1c40f';
+                waveText.style.fontSize = '36px';
+                waveText.style.textShadow = '0 0 10px #000';
+                waveText.style.zIndex = '50';
+                battlefield.appendChild(waveText);
+                
+                setTimeout(() => {
+                    waveText.style.opacity = '0';
+                    waveText.style.transition = 'opacity 1s';
+                    setTimeout(() => {
+                        if (waveText.parentNode) {
+                            waveText.parentNode.removeChild(waveText);
+                        }
+                    }, 1000);
+                }, 2000);
+            }
+        }
+
+        // Deal damage to enemy base
+        function dealDamageToEnemy(damage) {
+            gameState.enemyHealth -= damage;
+            if (gameState.enemyHealth < 0) gameState.enemyHealth = 0;
+            updateHealthBars();
+        }
+
+        // Deal damage to player base
+        function dealDamageToPlayer(damage) {
+            gameState.playerHealth -= damage;
+            if (gameState.playerHealth < 0) gameState.playerHealth = 0;
+            updateHealthBars();
+        }
+
+        // Remove a unit
+        function removeUnit(unit) {
+            // Add death effect
+            unit.element.style.transform = 'scale(0)';
+            unit.element.style.transition = 'transform 0.3s';
+            
+            setTimeout(() => {
+                if (unit.element.parentNode) {
+                    unit.element.parentNode.removeChild(unit.element);
+                }
+            }, 300);
+            
+            gameState.units = gameState.units.filter(u => u !== unit);
+        }
+
+        // Remove an enemy
+        function removeEnemy(enemy) {
+            // Add death effect
+            enemy.element.style.transform = 'scaleX(-1) scale(0)';
+            enemy.element.style.transition = 'transform 0.3s';
+            
+            setTimeout(() => {
+                if (enemy.element.parentNode) {
+                    enemy.element.parentNode.removeChild(enemy.element);
+                }
+            }, 300);
+            
+            gameState.enemies = gameState.enemies.filter(e => e !== enemy);
+        }
+
+        // Update resource displays
+        function updateResources() {
+            goldEl.textContent = Math.floor(gameState.gold);
+            
+            // Update XP bar
+            const xpPercent = Math.min((gameState.xp / CONFIG.xpNeeded) * 100, 100);
+            xpBar.style.width = `${xpPercent}%`;
+            
+            // Update buttons
+            document.getElementById('train-goblin').disabled = gameState.gold < CONFIG.unitCosts.goblin;
+            document.getElementById('train-archer').disabled = gameState.gold < CONFIG.unitCosts.archer;
+            document.getElementById('train-dragon').disabled = gameState.gold < CONFIG.unitCosts.dragon;
+            
+            if (!gameState.heroAvailable && !gameState.heroActive) {
+                heroStatusEl.textContent = `Herói: ${gameState.xp}/${CONFIG.xpNeeded} XP`;
+            }
+        }
+
+        // Update health bars
+        function updateHealthBars() {
+            playerHealthBar.style.width = `${gameState.playerHealth}%`;
+            enemyHealthBar.style.width = `${gameState.enemyHealth}%`;
+        }
+
+        // Game over
+        function gameOver(victory) {
+            gameState.gameRunning = false;
+            gameOverText.textContent = victory ? 'Vitória!' : 'Derrota!';
+            gameOverDesc.textContent = victory 
+                ? `Você destruiu a base inimiga em ${gameState.wave} ondas!` 
+                : `Sua base foi destruída na onda ${gameState.wave}.`;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        // Restart game
+        function restartGame() {
+            // Clear all units and enemies
+            gameState.units.forEach(unit => {
+                if (unit.element.parentNode) {
+                    unit.element.parentNode.removeChild(unit.element);
+                }
+            });
+            
+            gameState.enemies.forEach(enemy => {
+                if (enemy.element.parentNode) {
+                    enemy.element.parentNode.removeChild(enemy.element);
+                }
+            });
+            
+            // Reset game state
+            gameState.gold = 100;
+            gameState.xp = 0;
+            gameState.heroAvailable = false;
+            gameState.heroActive = false;
+            gameState.heroTimeLeft = 0;
+            gameState.gameRunning = true;
+            gameState.playerHealth = 100;
+            gameState.enemyHealth = 100;
+            gameState.units = [];
+            gameState.enemies = [];
+            gameState.wave = 1;
+            gameState.kills = 0;
+            
+            // Update UI
+            updateResources();
+            updateHealthBars();
+            document.getElementById('summon-hero').disabled = true;
+            heroStatusEl.textContent = 'Herói: Bloqueado';
+            heroTimerEl.textContent = '';
+            gameOverScreen.style.display = 'none';
+        }
+
+        // Start the game
+        init();
+    </script>
+</body>
+</html>

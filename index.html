@@ -1,804 +1,1235 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clan Wars: The Green Goblin Forest</title>
+    <title>Cruzadinha - Taylor Swift</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background-color: #0d1a0d;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-            user-select: none;
-            color: #e0e0e0;
+            box-sizing: border-box;
         }
-        
-        #game-wrapper {
-            width: 100%;
-            max-width: 1200px;
+
+        :root {
+            --primary-bg: #0a0a0f;
+            --secondary-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --accent-color: #ff6b9e;
+            --accent-secondary: #9e95ff;
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8b8;
+            --gradient-primary: linear-gradient(135deg, #ff6b9e 0%, #9e95ff 100%);
+            --gradient-accent: linear-gradient(135deg, #ff6b9e 0%, #d1477a 100%);
+            --shadow-glow: 0 0 20px rgba(255, 107, 158, 0.3);
+            --cell-size: 35px;
+            --font-size-base: 16px;
+            --font-size-grid: 16px;
+        }
+
+        /* High contrast theme */
+        .high-contrast {
+            --primary-bg: #4a148c;
+            --secondary-bg: #6a1b9a;
+            --card-bg: #8e24aa;
+            --accent-color: #ffff00;
+            --accent-secondary: #ff0000;
+            --text-primary: #ffffff;
+            --text-secondary: #333333;
+            --gradient-primary: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            --gradient-accent: linear-gradient(135deg, #ffff00 0%, #cccc00 100%);
+            --shadow-glow: 0 0 20px rgba(255, 255, 0, 0.8);
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: var(--font-size-base);
+        }
+
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px;
         }
-        
-        #game-header {
-            text-align: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #1a2a1a;
-            border-radius: 10px;
-            border: 2px solid #5a3d2b;
-        }
-        
-        #game-container {
-            position: relative;
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
             width: 100%;
-            height: 600px;
-            background-image: linear-gradient(to bottom, #1a3a1a, #0d1a0d);
-            border: 4px solid #5a3d2b;
-            box-shadow: 0 0 30px #000;
-            overflow: hidden;
-            border-radius: 10px;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 107, 158, 0.2);
         }
-        
-        #battlefield {
+
+        .high-contrast .navbar {
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo h2 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .accent {
+            color: var(--accent-color);
+        }
+
+        .accessibility-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover,
+        .control-btn:focus {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            box-shadow: var(--shadow-glow);
+            outline: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 100px;
+            padding: 2rem 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Game Container */
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Crossword Grid */
+        .crossword-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .crossword-grid {
+            display: grid;
+            grid-template-columns: repeat(25, var(--cell-size));
+            grid-template-rows: repeat(25, var(--cell-size));
+            gap: 1px;
+            background: var(--secondary-bg);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background: var(--primary-bg);
+            border: 1px solid var(--secondary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
+            font-size: var(--font-size-grid);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .cell.active {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 0 10px rgba(255, 107, 158, 0.5);
+        }
+
+        .cell.filled {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+        }
+
+        .cell.completed {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .cell.revealed {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .cell input {
             width: 100%;
             height: 100%;
-            background-image: url('https://i.imgur.com/6Q6Q6Q6.jpg');
-            background-size: cover;
+            background: transparent;
+            border: none;
+            text-align: center;
+            font-size: var(--font-size-grid);
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            outline: none;
         }
-        
-        #player-base, #enemy-base {
+
+        .cell input:focus {
+            background: rgba(255, 107, 158, 0.1);
+        }
+
+        .cell-number {
             position: absolute;
-            width: 180px;
-            height: 150px;
-            bottom: 80px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: 10;
+            top: 2px;
+            left: 2px;
+            font-size: 10px;
+            color: var(--accent-color);
+            font-weight: 700;
         }
-        
-        #player-base {
-            left: 50px;
-            background-image: url('https://i.imgur.com/goblin-camp.png');
+
+        .cell.blocked {
+            background: var(--secondary-bg);
+            border: 1px solid var(--primary-bg);
         }
-        
-        #enemy-base {
-            right: 50px;
-            background-image: url('https://i.imgur.com/enemy-fort.png');
-            transform: scaleX(-1);
+
+        /* Clues Container */
+        .clues-container {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow-glow);
+            height: fit-content;
+            max-height: 800px;
+            overflow-y: auto;
         }
-        
-        .health-bar {
-            position: absolute;
+
+        .clues-section {
+            margin-bottom: 2rem;
+        }
+
+        .clues-section h2 {
+            font-family: 'Orbitron', monospace;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .clue-item {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 107, 158, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clue-item:hover {
+            background: rgba(255, 107, 158, 0.1);
+            transform: translateX(5px);
+        }
+
+        .clue-item.active {
+            background: rgba(255, 107, 158, 0.2);
+            box-shadow: 0 0 10px rgba(255, 107, 158, 0.3);
+        }
+
+        .clue-item.revealed {
+            background: rgba(156, 39, 176, 0.2);
+            border-left: 3px solid #9c27b0;
+        }
+
+        .clue-number {
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-right: 0.5rem;
+        }
+
+        .clue-text {
+            display: block;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .clue-answer {
+            display: none;
+        }
+
+        /* Game Status */
+        .game-status {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .progress-bar {
             width: 100%;
             height: 10px;
-            top: -15px;
-            background-color: #333;
+            background: var(--secondary-bg);
             border-radius: 5px;
             overflow: hidden;
+            margin-bottom: 1rem;
         }
-        
-        .health-fill {
+
+        .progress-fill {
             height: 100%;
-            background-color: #e74c3c;
-            width: 100%;
-        }
-        
-        #player-health .health-fill {
-            background-color: #2ecc71;
-        }
-        
-        .unit {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            bottom: 80px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            transition: left 0.3s linear;
-            z-index: 5;
-        }
-        
-        .goblin {
-            background-image: url('https://i.imgur.com/goblin-warrior.png');
-        }
-        
-        .archer {
-            background-image: url('https://i.imgur.com/goblin-archer.png');
-        }
-        
-        .dragon {
-            background-image: url('https://i.imgur.com/goblin-dragon.png');
-            width: 90px;
-            height: 90px;
-        }
-        
-        .hero {
-            background-image: url('https://i.imgur.com/goblin-hero.png');
-            width: 70px;
-            height: 70px;
-        }
-        
-        .enemy {
-            transform: scaleX(-1);
-        }
-        
-        #ui {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background-color: rgba(30, 40, 30, 0.9);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 3px solid #5a3d2b;
-            z-index: 20;
-        }
-        
-        .btn {
-            padding: 8px 15px;
-            background-color: #5a3d2b;
-            color: #fff;
-            border: 2px solid #8b5a2b;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            min-width: 120px;
-            text-align: center;
-            transition: all 0.2s;
-        }
-        
-        .btn:hover:not(:disabled) {
-            background-color: #8b5a2b;
-            transform: translateY(-2px);
-        }
-        
-        .btn:active:not(:disabled) {
-            transform: translateY(1px);
-        }
-        
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .btn-special {
-            background-color: #3d2b5a;
-            border-color: #5a2b8b;
-        }
-        
-        .btn-special:hover:not(:disabled) {
-            background-color: #5a2b8b;
-        }
-        
-        #resources {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            color: #fff;
-            font-size: 20px;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px 15px;
-            border-radius: 10px;
-            display: flex;
-            gap: 20px;
-            z-index: 15;
-        }
-        
-        .resource {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .resource-icon {
-            width: 24px;
-            height: 24px;
-        }
-        
-        #game-over {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            font-size: 48px;
-            z-index: 100;
-            text-align: center;
-        }
-        
-        #restart-btn {
-            margin-top: 30px;
-            padding: 15px 30px;
-            font-size: 24px;
-            background-color: #5a3d2b;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        
-        #restart-btn:hover {
-            background-color: #8b5a2b;
-        }
-        
-        #xp-bar-container {
-            width: 200px;
-            height: 20px;
-            background-color: #333;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-        
-        #xp-bar {
-            height: 100%;
-            background-color: #f39c12;
+            background: var(--gradient-accent);
             width: 0%;
-            transition: width 0.3s;
+            transition: width 0.5s ease;
         }
-        
-        #hero-timer {
-            position: absolute;
-            top: -25px;
-            width: 100%;
-            text-align: center;
-            font-size: 16px;
-            color: #f1c40f;
+
+        .status-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
         }
-        
-        #instructions {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
-            max-width: 250px;
-            font-size: 14px;
-            z-index: 15;
+
+        /* Game Controls */
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .game-btn {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .game-btn:hover {
+            background: var(--accent-secondary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .game-btn.reveal-btn {
+            background: #9c27b0;
+        }
+
+        .game-btn.reveal-btn:hover {
+            background: #7b1fa2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .clues-container {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --cell-size: 24px;
+                --font-size-base: 14px;
+                --font-size-grid: 12px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .crossword-grid {
+                grid-template-columns: repeat(25, var(--cell-size));
+                grid-template-rows: repeat(25, var(--cell-size));
+            }
+            
+            .accessibility-controls {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .control-btn {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .game-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --cell-size: 18px;
+                --font-size-grid: 10px;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .main-content {
+                margin-top: 140px;
+            }
+            
+            .crossword-grid {
+                padding: 5px;
+            }
+            
+            .clues-container {
+                padding: 1rem;
+            }
+        }
+
+        /* Focus and accessibility improvements */
+        .cell:focus-within {
+            outline: 3px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        .clue-item:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        /* Animation for completed words */
+        @keyframes word-complete {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .word-completed {
+            animation: word-complete 0.5s ease;
+        }
+
+        /* High contrast adjustments */
+        .high-contrast .cell {
+            border: 2px solid var(--text-primary);
+            background: var(--primary-bg);
+        }
+
+        .high-contrast .cell.active {
+            border: 3px solid var(--accent-color);
+            background: var(--card-bg);
+        }
+
+        .high-contrast .cell.blocked {
+            background: var(--secondary-bg);
+            border: 2px solid var(--primary-bg);
+        }
+
+        .high-contrast .crossword-grid {
+            background: var(--secondary-bg);
+        }
+
+        .high-contrast .clue-item {
+            border: 2px solid var(--accent-color);
+            background: var(--secondary-bg);
+        }
+
+        .high-contrast .clue-item:hover {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+        }
+        .high-contrast .clues-container {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+        }
+
+        .high-contrast .game-status {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+        }
+
+        .high-contrast .navbar {
+            background: rgba(74, 20, 140, 0.95);
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .high-contrast .cell.filled {
+            background: var(--accent-color);
+            color: var(--primary-bg);
+        }
+
+        .high-contrast .cell.completed {
+            background: #9c27b0;
+            color: var(--text-primary);
+            border: 3px solid var(--accent-color);
+        }
+
+        .high-contrast .game-btn {
+            border: 2px solid var(--text-primary);
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="game-wrapper">
-        <div id="game-header">
-            <h1>Clan Wars: The Green Goblin Forest</h1>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Lívia <span class="accent">SWIFT</span></h2>
+            </div>
+            <div class="accessibility-controls">
+                <button id="increase-font" class="control-btn" aria-label="Aumentar fonte">A+</button>
+                <button id="decrease-font" class="control-btn" aria-label="Diminuir fonte">A-</button>
+                <button id="increase-grid" class="control-btn" aria-label="Aumentar quadrados">□+</button>
+                <button id="decrease-grid" class="control-btn" aria-label="Diminuir quadrados">□-</button>
+                <button id="toggle-contrast" class="control-btn" aria-label="Alternar contraste">◐</button>
+            </div>
         </div>
-        
-        <div id="game-container">
-            <div id="battlefield">
-                <div id="player-base">
-                    <div id="player-health" class="health-bar">
-                        <div class="health-fill"></div>
-                    </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="header">
+                <h1 class="title">Cruzadinha - Taylor Swift Edition!</h1>
+                <p class="subtitle"> Valendo um salguadin de 2 reais ou um sushi misterioso</p>
+                <p class="description">Agora que tive que estudar a vida da mulher... chegou a tua vez! agr n esqueço mais!.</p>
+            </header>
+
+            <div class="game-container">
+                <div class="crossword-container">
+                    <div class="crossword-grid" id="crossword-grid" role="grid" aria-label="Grade da cruzadinha">
+                        </div>
                 </div>
-                
-                <div id="enemy-base">
-                    <div class="health-bar">
-                        <div class="health-fill"></div>
-                    </div>
-                </div>
-                
-                <div id="resources">
-                    <div class="resource">
-                        <img src="https://i.imgur.com/gold-icon.png" class="resource-icon" alt="Ouro">
-                        <span id="gold">100</span>
-                    </div>
-                    <div class="resource">
-                        <img src="https://i.imgur.com/xp-icon.png" class="resource-icon" alt="XP">
-                        <div>
-                            <div>Experiência</div>
-                            <div id="xp-bar-container">
-                                <div id="xp-bar"></div>
+
+                <div class="clues-container">
+                    <div class="clues-section">
+                        <h2>Palavras Horizontais</h2>
+                        <div class="clue-list">
+                            <div class="clue-item" data-word="1">
+                                <span class="clue-number">1.</span>
+                                <span class="clue-text">Álbum de 2019 que marcou o início de sua era mais colorida.</span>
+                                <span class="clue-answer" aria-label="5 letras">LOVER</span>
+                            </div>
+                            <div class="clue-item" data-word="3">
+                                <span class="clue-number">3.</span>
+                                <span class="clue-text">Seu gato mais famoso, presente em vários videoclipes.</span>
+                                <span class="clue-answer" aria-label="7 letras">MEREDITH</span>
+                            </div>
+                            <div class="clue-item" data-word="5">
+                                <span class="clue-number">5.</span>
+                                <span class="clue-text">Cidade natal de Taylor Swift.</span>
+                                <span class="clue-answer" aria-label="9 letras">READING</span>
+                            </div>
+                            <div class="clue-item" data-word="7">
+                                <span class="clue-number">7.</span>
+                                <span class="clue-text">Álbum que ela regravou em 2021 devido a disputas de direitos.</span>
+                                <span class="clue-answer" aria-label="3 letras">RED</span>
+                            </div>
+                            <div class="clue-item" data-word="9">
+                                <span class="clue-number">9.</span>
+                                <span class="clue-text">Nome do seu primeiro álbum lançado em 2006.</span>
+                                <span class="clue-answer" aria-label="6 letras">TAYLOR</span>
+                            </div>
+                            <div class="clue-item" data-word="11">
+                                <span class="clue-number">11.</span>
+                                <span class="clue-text">Música sobre um relacionamento que acabou em um telefone de 27 segundos.</span>
+                                <span class="clue-answer" aria-label="9 letras">ALLTOOWELL</span>
+                            </div>
+                            <div class="clue-item" data-word="13">
+                                <span class="clue-number">13.</span>
+                                <span class="clue-text">Prêmio que ela ganhou em 2021 pelo álbum "Folklore".</span>
+                                <span class="clue-answer" aria-label="6 letras">GRAMMY</span>
+                            </div>
+                            <div class="clue-item" data-word="15">
+                                <span class="clue-number">15.</span>
+                                <span class="clue-text">Primeiro single do álbum "1989".</span>
+                                <span class="clue-answer" aria-label="7 letras">SHAKEIT</span>
+                            </div>
+                            <div class="clue-item" data-word="17">
+                                <span class="clue-number">17.</span>
+                                <span class="clue-text">Música sobre um amor de verão que virou hit em 2009.</span>
+                                <span class="clue-answer" aria-label="5 letras">LOVESTORY</span>
+                            </div>
+                            <div class="clue-item" data-word="19">
+                                <span class="clue-number">19.</span>
+                                <span class="clue-text">Série de shows que ela realizou em 2018.</span>
+                                <span class="clue-answer" aria-label="10 letras">REPUTATION</span>
+                            </div>
+                            <div class="clue-item" data-word="21">
+                                <span class="clue-number">21.</span>
+                                <span class="clue-text">Música sobre um relacionamento secreto com um ator famoso.</span>
+                                <span class="clue-answer" aria-label="7 letras">STYLE</span>
+                            </div>
+                            <div class="clue-item" data-word="23">
+                                <span class="clue-number">23.</span>
+                                <span class="clue-text">Álbum surpresa lançado durante a pandemia.</span>
+                                <span class="clue-answer" aria-label="8 letras">FOLKLORE</span>
                             </div>
                         </div>
                     </div>
-                    <div class="resource">
-                        <img src="https://i.imgur.com/hero-icon.png" class="resource-icon" alt="Herói">
-                        <div>
-                            <div id="hero-status">Herói: Bloqueado</div>
-                            <div id="hero-timer"></div>
+
+                    <div class="clues-section">
+                        <h2>Palavras Verticais</h2>
+                        <div class="clue-list">
+                            <div class="clue-item" data-word="2">
+                                <span class="clue-number">2.</span>
+                                <span class="clue-text">Música sobre um relacionamento que "nunca pode ser".</span>
+                                <span class="clue-answer" aria-label="7 letras">WILDSTYLE</span>
+                            </div>
+                            <div class="clue-item" data-word="4">
+                                <span class="clue-number">4.</span>
+                                <span class="clue-text">Nome do segundo álbum de Taylor, lançado em 2008.</span>
+                                <span class="clue-answer" aria-label="7 letras">FEARLESS</span>
+                            </div>
+                            <div class="clue-item" data-word="6">
+                                <span class="clue-number">6.</span>
+                                <span class="clue-text">Música que fala sobre "bandidos de mão beijada".</span>
+                                <span class="clue-answer" aria-label="5 letras">BLANKSPACE</span>
+                            </div>
+                            <div class="clue-item" data-word="8">
+                                <span class="clue-number">8.</span>
+                                <span class="clue-text">Ator com quem Taylor teve um relacionamento em 2010.</span>
+                                <span class="clue-answer" aria-label="4 letras">JAKE</span>
+                            </div>
+                            <div class="clue-item" data-word="10">
+                                <span class="clue-number">10.</span>
+                                <span class="clue-text">Música sobre um amor que "você nunca vai ter de volta".</span>
+                                <span class="clue-answer" aria-label="6 letras">ENCHANTED</span>
+                            </div>
+                            <div class="clue-item" data-word="12">
+                                <span class="clue-number">12.</span>
+                                <span class="clue-text">Álbum que marcou sua transição para o pop em 2014.</span>
+                                <span class="clue-answer" aria-label="4 letras">1989</span>
+                            </div>
+                            <div class="clue-item" data-word="14">
+                                <span class="clue-number">14.</span>
+                                <span class="clue-text">Música sobre um amor que "não era para ser".</span>
+                                <span class="clue-answer" aria-label="8 letras">BACKTODECEMBER</span>
+                            </div>
+                            <div class="clue-item" data-word="16">
+                                <span class="clue-number">16.</span>
+                                <span class="clue-text">Música que fala sobre "bandeiras na lua".</span>
+                                <span class="clue-answer" aria-label="7 letras">CARDIGAN</span>
+                            </div>
+                            <div class="clue-item" data-word="18">
+                                <span class="clue-number">18.</span>
+                                <span class="clue-text">Música sobre um amor que "nunca foi real".</span>
+                                <span class="clue-answer" aria-label="6 letras">CRUELSUMMER</span>
+                            </div>
+                            <div class="clue-item" data-word="20">
+                                <span class="clue-number">20.</span>
+                                <span class="clue-text">Música que fala sobre "um barco e um vestido roxo".</span>
+                                <span class="clue-answer" aria-label="5 letras">DELICATE</span>
+                            </div>
+                            <div class="clue-item" data-word="22">
+                                <span class="clue-number">22.</span>
+                                <span class="clue-text">Música sobre um amor que "nunca foi justo".</span>
+                                <span class="clue-answer" aria-label="4 letras">ME</span>
+                            </div>
+                            <div class="clue-item" data-word="24">
+                                <span class="clue-number">24.</span>
+                                <span class="clue-text">Música sobre um amor que "nunca foi sincero".</span>
+                                <span class="clue-answer" aria-label="5 letras">BADBLOOD</span>
+                            </div>
+                            <div class="clue-item" data-word="25">
+                                <span class="clue-number">25.</span>
+                                <span class="clue-text">Música sobre um amor que "nunca foi fácil".</span>
+                                <span class="clue-answer" aria-label="6 letras">EXILE</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div id="instructions">
-                    <h3>Como Jogar:</h3>
-                    <p>• Treine unidades para atacar o inimigo</p>
-                    <p>• Ganhe XP para desbloquear o Herói</p>
-                    <p>• Destrua a base inimiga primeiro!</p>
+            </div>
+
+            <div class="game-status">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
                 </div>
-                
-                <div id="ui">
-                    <button id="train-goblin" class="btn">
-                        <img src="https://i.imgur.com/goblin-icon.png" width="20" height="20">
-                        Goblin (20)
-                    </button>
-                    <button id="train-archer" class="btn">
-                        <img src="https://i.imgur.com/archer-icon.png" width="20" height="20">
-                        Arqueiro (40)
-                    </button>
-                    <button id="train-dragon" class="btn">
-                        <img src="https://i.imgur.com/dragon-icon.png" width="20" height="20">
-                        Dragão (100)
-                    </button>
-                    <button id="summon-hero" class="btn btn-special" disabled>
-                        <img src="https://i.imgur.com/hero-btn-icon.png" width="20" height="20">
-                        Convocar Herói
-                    </button>
-                </div>
-                
-                <div id="game-over">
-                    <div id="game-over-text">Você Perdeu!</div>
-                    <div id="game-over-desc"></div>
-                    <button id="restart-btn" class="btn">Jogar Novamente</button>
-                </div>
+                <p class="status-text" id="status-text">Complete a cruzadinha preenchendo todas as palavras</p>
+            </div>
+
+            <div class="game-controls">
+                <button id="reveal-answers" class="game-btn reveal-btn">Revelar Respostas</button>
+                <button id="reset-game" class="game-btn">Reiniciar Jogo</button>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
-        // Game state
-        const gameState = {
-            gold: 100,
-            xp: 0,
-            heroAvailable: false,
-            heroActive: false,
-            heroTimeLeft: 0,
-            gameRunning: true,
-            playerHealth: 100,
-            enemyHealth: 100,
-            units: [],
-            enemies: [],
-            wave: 1,
-            kills: 0
-        };
-
-        // DOM elements
-        const goldEl = document.getElementById('gold');
-        const xpBar = document.getElementById('xp-bar');
-        const heroStatusEl = document.getElementById('hero-status');
-        const heroTimerEl = document.getElementById('hero-timer');
-        const gameContainer = document.getElementById('game-container');
-        const battlefield = document.getElementById('battlefield');
-        const gameOverScreen = document.getElementById('game-over');
-        const gameOverText = document.getElementById('game-over-text');
-        const gameOverDesc = document.getElementById('game-over-desc');
-        const restartBtn = document.getElementById('restart-btn');
-        const playerHealthBar = document.querySelector('#player-health .health-fill');
-        const enemyHealthBar = document.querySelector('#enemy-base .health-fill');
-
-        // Game configuration
-        const CONFIG = {
-            unitCosts: {
-                goblin: 20,
-                archer: 40,
-                dragon: 100
-            },
-            xpNeeded: 50,
-            xpPerKill: 5,
-            goldPerKill: {
-                goblin: 10,
-                archer: 20,
-                dragon: 50
-            },
-            heroDuration: 30000, // 30 seconds
-            passiveGold: 0.5, // Gold per 100ms
-            waveInterval: 30000, // 30 seconds
-            waveMultiplier: 1.2
-        };
-
-        // Enemy types with weights for spawn probability
-        const ENEMY_TYPES = [
-            { type: 'goblin', weight: 5, health: 30, damage: 5, speed: 2, bounty: 10 },
-            { type: 'archer', weight: 3, health: 20, damage: 10, speed: 1.5, bounty: 20 },
-            { type: 'dragon', weight: 1, health: 100, damage: 30, speed: 1, bounty: 50 }
-        ];
-
-        // Initialize game
-        function init() {
-            // Event listeners for buttons
-            document.getElementById('train-goblin').addEventListener('click', () => trainUnit('goblin'));
-            document.getElementById('train-archer').addEventListener('click', () => trainUnit('archer'));
-            document.getElementById('train-dragon').addEventListener('click', () => trainUnit('dragon'));
-            document.getElementById('summon-hero').addEventListener('click', summonHero);
-            restartBtn.addEventListener('click', restartGame);
-
-            // Game loops
-            setInterval(spawnEnemy, 2000); // Spawn enemy every 2 seconds
-            setInterval(gameLoop, 100); // Main game loop (10fps)
-            setInterval(passiveIncome, 100); // Passive gold income
-            setInterval(increaseWave, CONFIG.waveInterval); // Increase wave difficulty
-
-            // Initial UI update
-            updateResources();
-            updateHealthBars();
-        }
-
-        // Train a unit
-        function trainUnit(type) {
-            if (gameState.gold >= CONFIG.unitCosts[type]) {
-                gameState.gold -= CONFIG.unitCosts[type];
-                updateResources();
+        class CrosswordGame {
+            constructor() {
+                this.gridSize = 25;
+                this.currentCell = null;
+                this.currentWord = null;
+                this.currentDirection = 'horizontal';
+                this.completedWords = new Set();
                 
-                const unit = createUnitElement(type, '200px');
-                battlefield.appendChild(unit.element);
-                
-                gameState.units.push(unit);
-                
-                // Add spawn effect
-                unit.element.style.transform = 'scale(0)';
-                setTimeout(() => {
-                    unit.element.style.transform = 'scale(1)';
-                }, 100);
-            }
-        }
+                // Definição das palavras e suas posições
+    this.words = {
+    // Horizontais
+    1:  { word: 'LOVER',      startRow: 3,  startCol: 3,  direction: 'horizontal', clue: 'Álbum de 2019 que marcou o início de sua era mais colorida.' }, // cruza com READING (R), TAYLOR (R)
+    2:  { word: 'MEREDITH',   startRow: 2,  startCol: 6,  direction: 'vertical', clue: 'Seu gato mais famoso, presente em vários videoclipes.' }, // cruza com CARDIGAN (R), EXILE (E)
+    3:  { word: 'RED',        startRow: 6,  startCol: 4,  direction: 'horizontal', clue: 'Álbum que ela regravou em 2021 devido a disputas de direitos.' },
+    4:  { word: 'ALLTOOWELL', startRow: 8,  startCol: 3,  direction: 'horizontal', clue: 'Música sobre um relacionamento que acabou em um telefone de 27 segundos.' },
+    5:  { word: 'SHAKEIT',    startRow: 4,  startCol: 10,  direction: 'vertical', clue: 'Primeiro single do álbum "1989".' },
+    6:  { word: 'FOLKLORE',   startRow: 4, startCol: 12,  direction: 'vertical', clue: 'Álbum surpresa lançado durante a pandemia.' },
+    7:  { word: 'LOVESTORY',  startRow: 5, startCol: 11,  direction: 'horizontal', clue: 'Música sobre um amor de verão que virou hit em 2009.' },
+    8:  { word: 'ENCHANTED',  startRow: 5, startCol: 14,  direction: 'vertical', clue: 'Música sobre um amor que "você nunca vai ter de volta".' },
+    9:  { word: 'GRAMMY',     startRow: 17, startCol: 18,  direction: 'horizontal', clue: 'Prêmio que ela ganhou em 2021 pelo álbum "Folklore".' },
+    10: { word: 'FEARLESS',   startRow: 12,  startCol: 13,  direction: 'horizontal',   clue: 'Nome do segundo álbum de Taylor, lançado em 2008.' },
+    11: { word: 'READING',    startRow: 11,  startCol: 18,  direction: 'vertical',   clue: 'Cidade natal de Taylor Swift.' },
+    12: { word: 'TAYLOR',     startRow: 16,  startCol: 20,  direction: 'vertical',   clue: 'Nome do seu primeiro álbum lançado em 2006.' },
+    13: { word: '1989',       startRow: 0,  startCol: 0,  direction: 'horizontal',   clue: 'Álbum que marcou sua transição para o pop em 2014.' },
+    14: { word: 'CARDIGAN',   startRow: 3,  startCol: 18,  direction: 'vertical',   clue: 'Música que fala sobre "bandeiras na lua".' },
+    15: { word: 'REPUTATION', startRow: 0,  startCol: 8, direction: 'vertical',   clue: 'Série de shows que ela realizou em 2018.' }, // Movida para col 10
+    16: { word: 'JAKE',       startRow: 11,  startCol: 15,  direction: 'vertical',   clue: 'Ator com quem Taylor teve um relacionamento em 2010.' },
+    17: { word: 'STYLE',      startRow: 15,  startCol: 23,  direction: 'vertical',   clue: 'Música sobre um relacionamento secreto com um ator famoso.' },
+    18: { word: 'CRUELSUMMER',startRow: 21,  startCol: 9,  direction: 'horizontal',   clue: 'Música sobre um amor que "nunca foi real".' },
+    19: { word: 'DELICATE',   startRow: 3,  startCol: 14, direction: 'horizontal',   clue: 'Música que fala sobre "um barco e um vestido roxo".' }, // Movida para col 12
+    20: { word: 'ME',         startRow: 2, startCol: 21,  direction: 'vertical',   clue: 'Música sobre um amor que "nunca foi justo".' },
+    21: { word: 'EXILE',      startRow: 17,  startCol: 12,  direction: 'vertical',   clue: 'Música sobre um amor que "nunca foi fácil".' },
+    22: { word: 'BADBLOOD',   startRow: 17,  startCol: 13,  direction: 'vertical',   clue: 'Música sobre um amor que "nunca foi sincero".' },
+    23: { word: 'WILDSTYLE',  startRow: 17,  startCol: 4, direction: 'horizontal',   clue: 'Música sobre um relacionamento que "nunca pode ser".' }, // Movida para col 14
+    24: { word: 'BLANKSPACE', startRow: 12,  startCol: 8,  direction: 'vertical',   clue: 'Música que fala sobre "bandidos de mão beijada".' }, // Movida para col 0
+    25: { word: 'BACKTODECEMBER', startRow: 24, startCol: 7, direction: 'horizontal', clue: 'Música sobre um amor que "não era para ser".' } // Movida para col 18
 
-        // Create a unit element
-        function createUnitElement(type, position) {
-            const element = document.createElement('div');
-            element.className = `unit ${type}`;
-            element.style.left = position;
-            
-            return {
-                element: element,
-                type: type,
-                health: type === 'goblin' ? 40 : (type === 'archer' ? 25 : 120),
-                maxHealth: type === 'goblin' ? 40 : (type === 'archer' ? 25 : 120),
-                damage: type === 'goblin' ? 8 : (type === 'archer' ? 15 : 35),
-                position: parseInt(position),
-                speed: type === 'dragon' ? 1.2 : (type === 'archer' ? 1.8 : 2.5),
-                attackCooldown: 0,
-                attackRate: type === 'archer' ? 20 : 30
-            };
-        }
+};
 
-        // Spawn an enemy
-        function spawnEnemy() {
-            if (!gameState.gameRunning) return;
-            
-            // Weighted random enemy selection
-            const totalWeight = ENEMY_TYPES.reduce((sum, enemy) => sum + enemy.weight, 0);
-            let random = Math.random() * totalWeight;
-            let selectedEnemy;
-            
-            for (const enemy of ENEMY_TYPES) {
-                if (random < enemy.weight) {
-                    selectedEnemy = enemy;
-                    break;
-                }
-                random -= enemy.weight;
+
+                this.grid = this.createEmptyGrid();
+                this.setupWordPositions();
+                this.init();
             }
             
-            const enemy = createUnitElement(selectedEnemy.type, '900px');
-            enemy.element.classList.add('enemy');
-            battlefield.appendChild(enemy.element);
+            createEmptyGrid() {
+                return Array(this.gridSize).fill().map(() => Array(this.gridSize).fill(null));
+            }
             
-            // Apply wave difficulty
-            enemy.health = Math.floor(selectedEnemy.health * Math.pow(CONFIG.waveMultiplier, gameState.wave - 1));
-            enemy.maxHealth = enemy.health;
-            enemy.damage = Math.floor(selectedEnemy.damage * Math.pow(CONFIG.waveMultiplier, gameState.wave - 1));
-            
-            gameState.enemies.push(enemy);
-            
-            // Add spawn effect
-            enemy.element.style.transform = 'scale(0)';
-            setTimeout(() => {
-                enemy.element.style.transform = 'scaleX(-1) scale(1)';
-            }, 100);
-        }
-
-        // Summon hero
-        function summonHero() {
-            if (gameState.heroAvailable && !gameState.heroActive) {
-                gameState.heroAvailable = false;
-                gameState.heroActive = true;
-                gameState.heroTimeLeft = CONFIG.heroDuration / 1000;
-                updateResources();
-                
-                const hero = createUnitElement('hero', '200px');
-                battlefield.appendChild(hero.element);
-                
-                gameState.units.push(hero);
-                
-                // Hero duration timer
-                const heroInterval = setInterval(() => {
-                    gameState.heroTimeLeft -= 1;
-                    heroTimerEl.textContent = `Herói: ${gameState.heroTimeLeft}s`;
+            setupWordPositions() {
+                // Marca as posições das palavras no grid
+                Object.keys(this.words).forEach(wordId => {
+                    const wordData = this.words[wordId];
+                    const { word, startRow, startCol, direction } = wordData;
                     
-                    if (gameState.heroTimeLeft <= 0) {
-                        clearInterval(heroInterval);
-                        removeHero();
+                    for (let i = 0; i < word.length; i++) {
+                        const row = direction === 'horizontal' ? startRow : startRow + i;
+                        const col = direction === 'horizontal' ? startCol + i : startCol;
+                        
+                        if (row < this.gridSize && col < this.gridSize) {
+                            if (!this.grid[row][col]) {
+                                this.grid[row][col] = {
+                                    letter: word[i],
+                                    words: [wordId],
+                                    isStart: i === 0,
+                                    number: i === 0 ? wordId : null
+                                };
+                            } else {
+                                // Célula compartilhada entre palavras
+                                this.grid[row][col].words.push(wordId);
+                            }
+                        }
                     }
+                });
+            }
+            
+            init() {
+                this.createGrid();
+                this.setupEventListeners();
+                this.setupAccessibilityControls();
+                this.setupGameControls();
+                this.updateProgress();
+            }
+            
+            createGrid() {
+                const gridContainer = document.getElementById('crossword-grid');
+                gridContainer.innerHTML = '';
+                
+                for (let row = 0; row < this.gridSize; row++) {
+                    for (let col = 0; col < this.gridSize; col++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.row = row;
+                        cell.dataset.col = col;
+                        
+                        if (this.grid[row][col]) {
+                            const cellData = this.grid[row][col];
+                            
+                            // Adiciona número se for início de palavra
+                            if (cellData.number) {
+                                const numberSpan = document.createElement('span');
+                                numberSpan.className = 'cell-number';
+                                numberSpan.textContent = cellData.number;
+                                cell.appendChild(numberSpan);
+                            }
+                            
+                            // Adiciona input para a letra
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.maxLength = 1;
+                            input.setAttribute('aria-label', `Célula linha ${row + 1}, coluna ${col + 1}`);
+                            
+                            cell.appendChild(input);
+                            cell.classList.add('active');
+                        } else {
+                            cell.classList.add('blocked');
+                        }
+                        
+                        gridContainer.appendChild(cell);
+                    }
+                }
+            }
+            
+            setupEventListeners() {
+                const grid = document.getElementById('crossword-grid');
+                
+                // Event delegation para inputs
+                grid.addEventListener('input', (e) => {
+                    if (e.target.tagName === 'INPUT') {
+                        this.handleInput(e);
+                    }
+                });
+                
+                grid.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.classList.contains('cell')) {
+                        const cell = e.target.closest('.cell');
+                        if (cell) {
+                            this.handleCellClick(cell);
+                        }
+                    }
+                });
+                
+                grid.addEventListener('keydown', (e) => {
+                    if (e.target.tagName === 'INPUT') {
+                        this.handleKeyDown(e);
+                    }
+                });
+                
+                // Event listeners para as dicas
+                document.querySelectorAll('.clue-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        this.highlightWord(item.dataset.word);
+                    });
+                });
+            }
+            
+            setupGameControls() {
+                document.getElementById('reveal-answers').addEventListener('click', () => {
+                    if (confirm('Arregou? já quer desistir? quer revelar tudo??? vai revela aí pra tu ver :3.')) {
+                        this.revealAllAnswers();
+                    }
+                });
+                
+                document.getElementById('reset-game').addEventListener('click', () => {
+                    if (confirm('sei nem pq botei esse botão, mas tá aqui de qualquer jeito: reinicia o jogo.')) {
+                        this.resetGame();
+                    }
+                });
+            }
+            
+            revealAllAnswers() {
+                Object.keys(this.words).forEach(wordId => {
+                    const wordData = this.words[wordId];
+                    const { word, startRow, startCol, direction } = wordData;
+                    
+                    for (let i = 0; i < word.length; i++) {
+                        const row = direction === 'horizontal' ? startRow : startRow + i;
+                        const col = direction === 'horizontal' ? startCol + i : startCol;
+                        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                        
+                        if (cell) {
+                            const input = cell.querySelector('input');
+                            if (input) {
+                                input.value = word[i];
+                                cell.classList.add('revealed');
+                                input.disabled = true;
+                            }
+                        }
+                    }
+                    
+                    // Marca a dica como revelada
+                    const clueItem = document.querySelector(`[data-word="${wordId}"]`);
+                    if (clueItem) clueItem.classList.add('revealed');
+                });
+                
+                this.completedWords = new Set(Object.keys(this.words));
+                this.updateProgress();
+            }
+            
+            resetGame() {
+                const inputs = document.querySelectorAll('.cell input');
+                inputs.forEach(input => {
+                    input.value = '';
+                    input.disabled = false;
+                    input.parentElement.classList.remove('filled', 'completed', 'revealed');
+                });
+                
+                document.querySelectorAll('.clue-item').forEach(item => {
+                    item.classList.remove('completed', 'revealed');
+                });
+                
+                this.completedWords = new Set();
+                this.updateProgress();
+                
+                // Foca no primeiro campo
+                const firstCell = document.querySelector('.cell.active');
+                if (firstCell) {
+                    this.setCurrentCell(firstCell);
+                }
+            }
+            
+            handleInput(e) {
+                const input = e.target;
+                const cell = input.parentElement;
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                
+                input.value = input.value.toUpperCase();
+                
+                const cellData = this.grid[row][col];
+                if (cellData && input.value === cellData.letter) {
+                    cell.classList.add('filled');
+                    this.checkWordCompletion(cellData.words);
+                } else {
+                    cell.classList.remove('filled');
+                }
+                
+                if (input.value) {
+                    this.moveToNextCell(row, col);
+                }
+                
+                this.updateProgress();
+            }
+            
+            handleCellClick(cell) {
+                if (!cell.classList.contains('active')) return;
+                this.setCurrentCell(cell);
+                
+                const cellData = this.grid[parseInt(cell.dataset.row)][parseInt(cell.dataset.col)];
+                if (cellData.words.length > 1) {
+                    // Se houver clique duplo ou clique em célula de interseção, muda a direção
+                    const wordData = this.words[cellData.words[0]];
+                    const currentDir = wordData.direction;
+                    
+                    if (this.currentCell === cell && this.currentDirection !== currentDir) {
+                        this.currentDirection = currentDir;
+                    }
+                }
+            }
+            
+            handleKeyDown(e) {
+                const input = e.target;
+                const cell = input.parentElement;
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                
+                switch (e.key) {
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        this.currentDirection = 'vertical';
+                        this.moveTo(row - 1, col);
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        this.currentDirection = 'vertical';
+                        this.moveTo(row + 1, col);
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        this.currentDirection = 'horizontal';
+                        this.moveTo(row, col - 1);
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        this.currentDirection = 'horizontal';
+                        this.moveTo(row, col + 1);
+                        break;
+                    case 'Backspace':
+                        if (!input.value) {
+                            this.moveToPreviousCell(row, col);
+                        }
+                        break;
+                }
+            }
+            
+            setCurrentCell(cell) {
+                document.querySelectorAll('.cell.current').forEach(c => c.classList.remove('current'));
+                
+                cell.classList.add('current');
+                this.currentCell = cell;
+                
+                const input = cell.querySelector('input');
+                if (input) {
+                    input.focus();
+                }
+            }
+            
+            moveTo(row, col) {
+                if (row >= 0 && row < this.gridSize && col >= 0 && col < this.gridSize) {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cell && cell.classList.contains('active')) {
+                        this.setCurrentCell(cell);
+                    }
+                }
+            }
+            
+            moveToNextCell(row, col) {
+                if (this.currentDirection === 'horizontal') {
+                    this.moveTo(row, col + 1);
+                } else {
+                    this.moveTo(row + 1, col);
+                }
+            }
+            
+            moveToPreviousCell(row, col) {
+                if (this.currentDirection === 'horizontal') {
+                    this.moveTo(row, col - 1);
+                } else {
+                    this.moveTo(row - 1, col);
+                }
+            }
+            
+            highlightWord(wordId) {
+                document.querySelectorAll('.clue-item.active').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.cell.highlighted').forEach(cell => cell.classList.remove('highlighted'));
+                
+                document.querySelector(`[data-word="${wordId}"]`).classList.add('active');
+                
+                const wordData = this.words[wordId];
+                const { startRow, startCol, direction, word } = wordData;
+                
+                for (let i = 0; i < word.length; i++) {
+                    const row = direction === 'horizontal' ? startRow : startRow + i;
+                    const col = direction === 'horizontal' ? startCol + i : startCol;
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cell) cell.classList.add('highlighted');
+                }
+                
+                setTimeout(() => {
+                    document.querySelectorAll('.cell.highlighted').forEach(cell => cell.classList.remove('highlighted'));
+                }, 3000);
+                
+                this.moveTo(startRow, startCol);
+                this.currentDirection = direction;
+            }
+            
+            checkWordCompletion(wordIds) {
+                wordIds.forEach(wordId => {
+                    if (this.completedWords.has(wordId)) return;
+                    
+                    const wordData = this.words[wordId];
+                    const { word, startRow, startCol, direction } = wordData;
+                    let isComplete = true;
+                    
+                    for (let i = 0; i < word.length; i++) {
+                        const row = direction === 'horizontal' ? startRow : startRow + i;
+                        const col = direction === 'horizontal' ? startCol + i : startCol;
+                        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                        const input = cell?.querySelector('input');
+                        
+                        if (!input || input.value !== word[i]) {
+                            isComplete = false;
+                            break;
+                        }
+                    }
+                    
+                    if (isComplete) {
+                        this.markWordAsCompleted(wordId);
+                    }
+                });
+            }
+            
+            markWordAsCompleted(wordId) {
+                this.completedWords.add(wordId);
+                
+                const wordData = this.words[wordId];
+                const { word, startRow, startCol, direction } = wordData;
+                
+                for (let i = 0; i < word.length; i++) {
+                    const row = direction === 'horizontal' ? startRow : startRow + i;
+                    const col = direction === 'horizontal' ? startCol + i : startCol;
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    
+                    if (cell) {
+                        cell.classList.add('completed');
+                        const input = cell.querySelector('input');
+                        if (input) input.disabled = true;
+                    }
+                }
+                
+                const clueItem = document.querySelector(`[data-word="${wordId}"]`);
+                if (clueItem) clueItem.classList.add('completed');
+                
+                this.animateWordCompletion(wordId);
+                this.updateProgress();
+                
+                if (this.completedWords.size === Object.keys(this.words).length) {
+                    this.gameCompleted();
+                }
+            }
+            
+            animateWordCompletion(wordId) {
+                const wordData = this.words[wordId];
+                const { word, startRow, startCol, direction } = wordData;
+                
+                for (let i = 0; i < word.length; i++) {
+                    const row = direction === 'horizontal' ? startRow : startRow + i;
+                    const col = direction === 'horizontal' ? startCol + i : startCol;
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    
+                    if (cell) {
+                        setTimeout(() => {
+                            cell.classList.add('word-completed');
+                            setTimeout(() => cell.classList.remove('word-completed'), 500);
+                        }, i * 50);
+                    }
+                }
+            }
+            
+            updateProgress() {
+                const totalCells = new Set();
+                Object.values(this.words).forEach(wordData => {
+                    for(let i = 0; i < wordData.word.length; i++) {
+                        const row = wordData.direction === 'horizontal' ? wordData.startRow : wordData.startRow + i;
+                        const col = wordData.direction === 'horizontal' ? wordData.startCol + i : wordData.startCol;
+                        totalCells.add(`${row}-${col}`);
+                    }
+                });
+                
+                const filledCells = document.querySelectorAll('.cell.filled').length;
+                const progress = (filledCells / totalCells.size) * 100;
+                
+                document.getElementById('progress-fill').style.width = `${progress}%`;
+                
+                if (this.completedWords.size === Object.keys(this.words).length) {
+                    document.getElementById('status-text').textContent = 'Parabéns! Você completou a cruzadinha!';
+                } else {
+                    document.getElementById('status-text').textContent = 
+                        `Progresso: ${this.completedWords.size}/${Object.keys(this.words).length} palavras completadas`;
+                }
+            }
+            
+            gameCompleted() {
+                setTimeout(() => {
+                    alert('Parabéns! Você completou a cruzadinha sobre Taylor Swift!');
                 }, 1000);
+            }
+            
+            setupAccessibilityControls() {
+                document.getElementById('increase-font').addEventListener('click', () => this.adjustFontSize(2));
+                document.getElementById('decrease-font').addEventListener('click', () => this.adjustFontSize(-2));
+                document.getElementById('increase-grid').addEventListener('click', () => this.adjustGridSize(4));
+                document.getElementById('decrease-grid').addEventListener('click', () => this.adjustGridSize(-4));
+                document.getElementById('toggle-contrast').addEventListener('click', () => this.toggleHighContrast());
+            }
+            
+            adjustFontSize(change) {
+                const root = document.documentElement;
+                const currentSize = parseInt(getComputedStyle(root).getPropertyValue('--font-size-base'));
+                const newSize = Math.max(12, Math.min(24, currentSize + change));
                 
-                // Add spawn effect
-                hero.element.style.transform = 'scale(0)';
-                setTimeout(() => {
-                    hero.element.style.transform = 'scale(1)';
-                }, 100);
+                root.style.setProperty('--font-size-base', `${newSize}px`);
+                root.style.setProperty('--font-size-grid', `${newSize}px`);
+            }
+            
+            adjustGridSize(change) {
+                const root = document.documentElement;
+                const currentSize = parseInt(getComputedStyle(root).getPropertyValue('--cell-size'));
+                const newSize = Math.max(18, Math.min(50, currentSize + change));
+                
+                root.style.setProperty('--cell-size', `${newSize}px`);
+            }
+            
+            toggleHighContrast() {
+                document.body.classList.toggle('high-contrast');
             }
         }
 
-        // Remove hero
-        function removeHero() {
-            gameState.heroActive = false;
-            heroTimerEl.textContent = '';
+        document.addEventListener('DOMContentLoaded', () => {
+            new CrosswordGame();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') return;
             
-            const hero = gameState.units.find(u => u.type === 'hero');
-            if (hero) {
-                removeUnit(hero);
+            if (e.ctrlKey) {
+                switch (e.key) {
+                    case '+': case '=':
+                        e.preventDefault();
+                        document.getElementById('increase-font').click();
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        document.getElementById('decrease-font').click();
+                        break;
+                    case 'h':
+                        e.preventDefault();
+                        document.getElementById('toggle-contrast').click();
+                        break;
+                }
             }
-        }
-
-        // Game loop
-        function gameLoop() {
-            if (!gameState.gameRunning) return;
-            
-            // Move units
-            gameState.units.forEach(unit => {
-                unit.position += unit.speed;
-                unit.element.style.left = `${unit.position}px`;
-                
-                // Check if unit reached enemy base
-                if (unit.position >= 850) {
-                    dealDamageToEnemy(unit.damage);
-                    if (unit.type !== 'hero') {
-                        removeUnit(unit);
-                    } else {
-                        unit.position = 200;
-                        unit.element.style.left = '200px';
-                    }
-                }
-                
-                // Check for collisions with enemies
-                gameState.enemies.forEach(enemy => {
-                    if (Math.abs(unit.position - enemy.position) < 40) {
-                        if (unit.attackCooldown <= 0) {
-                            enemy.health -= unit.damage;
-                            unit.attackCooldown = unit.attackRate;
-                            
-                            // Show damage effect
-                            enemy.element.style.filter = 'brightness(1.5)';
-                            setTimeout(() => {
-                                enemy.element.style.filter = '';
-                            }, 200);
-                            
-                            if (enemy.health <= 0) {
-                                removeEnemy(enemy);
-                                gameState.gold += CONFIG.goldPerKill[enemy.type] || 10;
-                                gameState.xp += CONFIG.xpPerKill;
-                                gameState.kills++;
-                                updateResources();
-                            }
-                        }
-                    }
-                });
-                
-                if (unit.attackCooldown > 0) {
-                    unit.attackCooldown--;
-                }
-            });
-            
-            // Move enemies
-            gameState.enemies.forEach(enemy => {
-                enemy.position -= enemy.speed;
-                enemy.element.style.left = `${enemy.position}px`;
-                
-                // Check if enemy reached player base
-                if (enemy.position <= 150) {
-                    dealDamageToPlayer(enemy.damage);
-                    removeEnemy(enemy);
-                }
-                
-                // Check for collisions with units
-                gameState.units.forEach(unit => {
-                    if (Math.abs(enemy.position - unit.position) < 40) {
-                        if (enemy.attackCooldown <= 0) {
-                            unit.health -= enemy.damage;
-                            enemy.attackCooldown = enemy.attackRate;
-                            
-                            // Show damage effect
-                            unit.element.style.filter = 'brightness(1.5)';
-                            setTimeout(() => {
-                                unit.element.style.filter = '';
-                            }, 200);
-                            
-                            if (unit.health <= 0) {
-                                removeUnit(unit);
-                            }
-                        }
-                    }
-                });
-                
-                if (enemy.attackCooldown > 0) {
-                    enemy.attackCooldown--;
-                }
-            });
-            
-            // Check hero availability
-            if (gameState.xp >= CONFIG.xpNeeded && !gameState.heroAvailable && !gameState.heroActive) {
-                gameState.heroAvailable = true;
-                document.getElementById('summon-hero').disabled = false;
-                heroStatusEl.textContent = 'Herói: Pronto!';
-            }
-            
-            // Check game over conditions
-            if (gameState.playerHealth <= 0) {
-                gameOver(false);
-            } else if (gameState.enemyHealth <= 0) {
-                gameOver(true);
-            }
-        }
-
-        // Passive gold income
-        function passiveIncome() {
-            if (gameState.gameRunning) {
-                gameState.gold += CONFIG.passiveGold;
-                updateResources();
-            }
-        }
-
-        // Increase wave difficulty
-        function increaseWave() {
-            if (gameState.gameRunning) {
-                gameState.wave++;
-                // Show wave notification
-                const waveText = document.createElement('div');
-                waveText.textContent = `Onda ${gameState.wave} começou!`;
-                waveText.style.position = 'absolute';
-                waveText.style.top = '50%';
-                waveText.style.left = '50%';
-                waveText.style.transform = 'translate(-50%, -50%)';
-                waveText.style.color = '#f1c40f';
-                waveText.style.fontSize = '36px';
-                waveText.style.textShadow = '0 0 10px #000';
-                waveText.style.zIndex = '50';
-                battlefield.appendChild(waveText);
-                
-                setTimeout(() => {
-                    waveText.style.opacity = '0';
-                    waveText.style.transition = 'opacity 1s';
-                    setTimeout(() => {
-                        if (waveText.parentNode) {
-                            waveText.parentNode.removeChild(waveText);
-                        }
-                    }, 1000);
-                }, 2000);
-            }
-        }
-
-        // Deal damage to enemy base
-        function dealDamageToEnemy(damage) {
-            gameState.enemyHealth -= damage;
-            if (gameState.enemyHealth < 0) gameState.enemyHealth = 0;
-            updateHealthBars();
-        }
-
-        // Deal damage to player base
-        function dealDamageToPlayer(damage) {
-            gameState.playerHealth -= damage;
-            if (gameState.playerHealth < 0) gameState.playerHealth = 0;
-            updateHealthBars();
-        }
-
-        // Remove a unit
-        function removeUnit(unit) {
-            // Add death effect
-            unit.element.style.transform = 'scale(0)';
-            unit.element.style.transition = 'transform 0.3s';
-            
-            setTimeout(() => {
-                if (unit.element.parentNode) {
-                    unit.element.parentNode.removeChild(unit.element);
-                }
-            }, 300);
-            
-            gameState.units = gameState.units.filter(u => u !== unit);
-        }
-
-        // Remove an enemy
-        function removeEnemy(enemy) {
-            // Add death effect
-            enemy.element.style.transform = 'scaleX(-1) scale(0)';
-            enemy.element.style.transition = 'transform 0.3s';
-            
-            setTimeout(() => {
-                if (enemy.element.parentNode) {
-                    enemy.element.parentNode.removeChild(enemy.element);
-                }
-            }, 300);
-            
-            gameState.enemies = gameState.enemies.filter(e => e !== enemy);
-        }
-
-        // Update resource displays
-        function updateResources() {
-            goldEl.textContent = Math.floor(gameState.gold);
-            
-            // Update XP bar
-            const xpPercent = Math.min((gameState.xp / CONFIG.xpNeeded) * 100, 100);
-            xpBar.style.width = `${xpPercent}%`;
-            
-            // Update buttons
-            document.getElementById('train-goblin').disabled = gameState.gold < CONFIG.unitCosts.goblin;
-            document.getElementById('train-archer').disabled = gameState.gold < CONFIG.unitCosts.archer;
-            document.getElementById('train-dragon').disabled = gameState.gold < CONFIG.unitCosts.dragon;
-            
-            if (!gameState.heroAvailable && !gameState.heroActive) {
-                heroStatusEl.textContent = `Herói: ${gameState.xp}/${CONFIG.xpNeeded} XP`;
-            }
-        }
-
-        // Update health bars
-        function updateHealthBars() {
-            playerHealthBar.style.width = `${gameState.playerHealth}%`;
-            enemyHealthBar.style.width = `${gameState.enemyHealth}%`;
-        }
-
-        // Game over
-        function gameOver(victory) {
-            gameState.gameRunning = false;
-            gameOverText.textContent = victory ? 'Vitória!' : 'Derrota!';
-            gameOverDesc.textContent = victory 
-                ? `Você destruiu a base inimiga em ${gameState.wave} ondas!` 
-                : `Sua base foi destruída na onda ${gameState.wave}.`;
-            gameOverScreen.style.display = 'flex';
-        }
-
-        // Restart game
-        function restartGame() {
-            // Clear all units and enemies
-            gameState.units.forEach(unit => {
-                if (unit.element.parentNode) {
-                    unit.element.parentNode.removeChild(unit.element);
-                }
-            });
-            
-            gameState.enemies.forEach(enemy => {
-                if (enemy.element.parentNode) {
-                    enemy.element.parentNode.removeChild(enemy.element);
-                }
-            });
-            
-            // Reset game state
-            gameState.gold = 100;
-            gameState.xp = 0;
-            gameState.heroAvailable = false;
-            gameState.heroActive = false;
-            gameState.heroTimeLeft = 0;
-            gameState.gameRunning = true;
-            gameState.playerHealth = 100;
-            gameState.enemyHealth = 100;
-            gameState.units = [];
-            gameState.enemies = [];
-            gameState.wave = 1;
-            gameState.kills = 0;
-            
-            // Update UI
-            updateResources();
-            updateHealthBars();
-            document.getElementById('summon-hero').disabled = true;
-            heroStatusEl.textContent = 'Herói: Bloqueado';
-            heroTimerEl.textContent = '';
-            gameOverScreen.style.display = 'none';
-        }
-
-        // Start the game
-        init();
+        });
     </script>
 </body>
 </html>
